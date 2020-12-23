@@ -19,7 +19,7 @@ public class DBConnector {
 
 //            Class.forName(driver).newInstance();
         c = DriverManager.getConnection(url,username,password);
-        System.out.println("Połączono z bazą: " + url + dbName);
+        System.out.println("Successfully connected with database: " + url + dbName);
 
 
         connection = c;

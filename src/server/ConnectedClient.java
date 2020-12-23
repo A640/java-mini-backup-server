@@ -23,7 +23,7 @@ public class ConnectedClient extends Thread {
     public ConnectedClient(Socket clientSocket){
         this.socket = clientSocket;
         this.clientID = -1;
-        System.out.println("Nowe połączenie z adresu: " + socket.getInetAddress());
+        System.out.println("New connection from: " + socket.getInetAddress());
 
         try {
 
@@ -34,8 +34,8 @@ public class ConnectedClient extends Thread {
             receive = new DataInputStream(socket.getInputStream());
 
         } catch (IOException e) {
-            System.out.println("Wystapil blad przy probie polaczenia z klientem " +socket.getInetAddress()+
-                    " . Szczegoly: " + e.toString());
+            System.out.println("An error occurred while trying to connect with the client " +socket.getInetAddress()+
+                    " . Details: " + e.toString());
 
         }
 
@@ -54,7 +54,7 @@ public class ConnectedClient extends Thread {
             } catch (SocketException e) {
                 try {
                     //when client disconnects
-                    System.out.println("zamykamy");
+                    System.out.println("Connection closed with: " + this.socket.getInetAddress());
                     this.socket.close();
                     this.connected = false;
                     return;
@@ -69,7 +69,7 @@ public class ConnectedClient extends Thread {
             if(action == null){
                 try {
                     //when client disconnects
-                    System.out.println("zamykamy");
+                    System.out.println("Connection closed with: " + this.socket.getInetAddress());
                     this.socket.close();
                     connected = false;
                     return;
@@ -94,7 +94,6 @@ public class ConnectedClient extends Thread {
                     break;
                 }
                 case "upload": {
-                    System.out.println("upload");
                     upload();
                     break;
                 }
@@ -103,7 +102,7 @@ public class ConnectedClient extends Thread {
                     break;
                 }
                 default:{
-                    System.out.println("Nierozpoznana akcja: " + action);
+                    System.out.println("Unknown action: " + action);
                     break;
                 }
             }
@@ -196,12 +195,14 @@ public class ConnectedClient extends Thread {
             Path path = Paths.get(System.getProperty("user.dir"),"/files/",String.valueOf(clientID),
                     String.valueOf(backupID),String.valueOf(name));
             Files.createDirectories(path.getParent());
-            System.out.println(path);
+//            System.out.println(path);
             Files.copy(receive,path);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             try {
+                //after upload close connection with file transfer socket
+                System.out.println("Connection closed with: " + this.socket.getInetAddress());
                 socket.close();
                 this.connected = false;
             } catch (IOException e) {

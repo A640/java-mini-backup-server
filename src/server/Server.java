@@ -19,18 +19,18 @@ public class Server {
     }
 
     public Server(int port){
-        System.out.println("Inicjalizacja serwera plików...");
+        System.out.println("File server initialization...");
         this.port = port;
         try {
             this.serverSocket = new ServerSocket(port);
-            System.out.println("łączenie z bazą danych...");
+            System.out.println("Connecting with database...");
             DBConnector.getConnection();
-            System.out.println("Oczekiwanie na połączenie na: " + this.serverSocket.getLocalSocketAddress());
+            System.out.println("Waiting for connections on: " + this.serverSocket.getLocalSocketAddress());
             waitForClients();
         } catch (IOException e) {
-            System.out.println("Nie można utworzyć serwera na wskazanym porcie. Powód: " + e.toString());
+            System.out.println("The server cannot be created on the provided port. Reason: " + e.toString());
         } catch (SQLException e) {
-            System.out.println("Nie można połączyć się z bazą danych. Powód: " + e.toString());
+            System.out.println("Cannot connect to database. Reason: " + e.toString());
         }
     }
 
@@ -41,7 +41,7 @@ public class Server {
                 socket = serverSocket.accept();
                 new ConnectedClient(socket).start();
             } catch (IOException e) {
-                System.out.println("Nie można połączyć z klientem. Powód: " + e.toString());
+                System.out.println("Cannot connect with client. Reason: " + e.toString());
             }
         }
     }
