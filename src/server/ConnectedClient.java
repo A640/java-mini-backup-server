@@ -1,5 +1,6 @@
 package server;
 
+import common.Backup;
 import database.QueryExecutor;
 
 import java.io.*;
@@ -9,14 +10,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.LinkedList;
+import java.util.List;
 
 public class ConnectedClient extends Thread {
     private Socket socket;
-    private DataOutputStream send;
-    private DataInputStream receive;
+    private ObjectOutputStream send;
+    private ObjectInputStream receive;
     private int clientID;
     private boolean connected;
 
@@ -28,10 +28,10 @@ public class ConnectedClient extends Thread {
         try {
 
             //create output stream for sending data to client
-            send = new DataOutputStream(socket.getOutputStream());
+            send = new ObjectOutputStream(socket.getOutputStream());
 
             //create input stream for reading response from client
-            receive = new DataInputStream(socket.getInputStream());
+            receive = new ObjectInputStream(socket.getInputStream());
 
         } catch (IOException e) {
             System.out.println("An error occurred while trying to connect with the client " +socket.getInetAddress()+
@@ -82,25 +82,92 @@ public class ConnectedClient extends Thread {
             //check action
             switch(action){
                 case "login": {
-                    login();
+
+                    String login = null;
+                    String password = null;
+
+                    try{
+                        login = receive.readUTF();
+                        password = receive.readUTF();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    login(login, password);
                     break;
                 }
+
                 case "register":{
-                    register();
+                    String name = null;
+                    String surname = null;
+                    String login = null;
+                    String password = null;
+
+                    try{
+                        name = receive.readUTF();
+                        surname = receive.readUTF();
+                        login = receive.readUTF();
+                        password = receive.readUTF();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    register(name,surname,login,password);
                     break;
                 }
+
                 case "createBackup":{
-                    createBackup();
+                    String name = null;
+                    String description = null;
+
+                    try{
+                        name = receive.readUTF();
+                        description = receive.readUTF();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    createBackup(name, description,this.clientID);
                     break;
                 }
+
                 case "upload": {
-                    upload();
+                    String name = null;
+                    Long size = null;
+
+                    int backupID = -1;
+                    try{
+                        name = receive.readUTF();
+                        size = receive.readLong();
+                        backupID = receive.readInt();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    upload(name,size, backupID);
                     break;
                 }
+
                 case "download": {
-                    //download();
+                    int backupID = -1;
+                    int fileID = -1;
+
+                    try{
+                        backupID = receive.readInt();
+                        fileID = receive.readInt();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    download(this.clientID,backupID,fileID);
                     break;
                 }
+
+                case "getBackupList": {
+                    getBackupList();
+                    break;
+                }
+
                 default:{
                     System.out.println("Unknown action: " + action);
                     break;
@@ -114,15 +181,15 @@ public class ConnectedClient extends Thread {
     }
 
 
-    private void login(){
-        String login = null;
-        String password = null;
-        try{
-            login = receive.readUTF();
-            password = receive.readUTF();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void login(String login, String password){
+//        String login = null;
+//        String password = null;
+//        try{
+//            login = receive.readUTF();
+//            password = receive.readUTF();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 //        String sql="SELECT id FROM user WHERE login = \"" + login + "\" AND password = \"" + password + "\"";
 //        System.out.println(sql);
 //        ResultSet res = null;
@@ -169,20 +236,20 @@ public class ConnectedClient extends Thread {
     }
 
 
-    private void upload(){
+    private void upload(String name, Long size, int backupID){
         //upload files from client to server
 
         //get info about file
-        String name = null;
-        Long size = null;
-        int backupID = -1;
-        try{
-            name = receive.readUTF();
-            size = receive.readLong();
-            backupID = receive.readInt();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        String name = null;
+//        Long size = null;
+//        int backupID = -1;
+//        try{
+//            name = receive.readUTF();
+//            size = receive.readLong();
+//            backupID = receive.readInt();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         //save file info to database
 
@@ -193,7 +260,7 @@ public class ConnectedClient extends Thread {
 
         try{
             Path path = Paths.get(System.getProperty("user.dir"),"/files/",String.valueOf(clientID),
-                    String.valueOf(backupID),String.valueOf(name));
+                    String.valueOf(backupID),String.valueOf(fileID)+".jmpb");
             Files.createDirectories(path.getParent());
 //            System.out.println(path);
             Files.copy(receive,path);
@@ -213,19 +280,19 @@ public class ConnectedClient extends Thread {
 
     }
 
-    private void register(){
-        String name = null;
-        String surname = null;
-        String login = null;
-        String password = null;
-        try{
-            name = receive.readUTF();
-            surname = receive.readUTF();
-            login = receive.readUTF();
-            password = receive.readUTF();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void register(String name,String surname,String login,String password){
+//        String name = null;
+//        String surname = null;
+//        String login = null;
+//        String password = null;
+//        try{
+//            name = receive.readUTF();
+//            surname = receive.readUTF();
+//            login = receive.readUTF();
+//            password = receive.readUTF();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         boolean success = false;
         success = QueryExecutor.register(name,surname,login,password);
@@ -239,23 +306,65 @@ public class ConnectedClient extends Thread {
 
     }
 
-    private void createBackup(){
-        String name = null;
-        String description = null;
-        try{
-            name = receive.readUTF();
-            description = receive.readUTF();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void createBackup(String name, String description, int clientID){
+//        String name = null;
+//        String description = null;
+//        try{
+//            name = receive.readUTF();
+//            description = receive.readUTF();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         int backupID = -1;
-        backupID = QueryExecutor.newBackup(name,description,this.clientID);
+        backupID = QueryExecutor.newBackup(name,description,clientID);
         try {
             send.writeInt(backupID);
+            send.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void getBackupList(){
+        List<Backup> backups = QueryExecutor.getBackupsList(this.clientID);
+
+        try {
+            send.writeUTF("backups");
+            send.writeObject(backups);
+            send.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+//        System.out.println("DONE");
+    }
+
+    private void download(int clientID, int backupID, int fileID){
+
+        try{
+            Path path = Paths.get(System.getProperty("user.dir"),"/files/",String.valueOf(clientID),
+                    String.valueOf(backupID),String.valueOf(fileID)+".jmpb");
+
+            send.writeUTF("File found");
+            send.flush();
+
+            System.out.println(path.toString());
+            Files.copy(path,send);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                //after upload close connection with file transfer socket
+                System.out.println("Connection closed with: " + this.socket.getInetAddress());
+                socket.close();
+                this.connected = false;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+
     }
 
 

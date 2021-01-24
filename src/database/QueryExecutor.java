@@ -1,6 +1,11 @@
 package database;
 
+import common.BFile;
+import common.Backup;
+
 import java.sql.*;
+import java.util.LinkedList;
+import java.util.List;
 
 public class QueryExecutor {
     private static Connection connection = null;
@@ -171,6 +176,73 @@ public class QueryExecutor {
             throwables.printStackTrace();
         }
         return id;
+
+    }
+
+    public static List<Backup> getBackupsList(int userID){
+
+        checkConnection();
+
+        List<Backup> backups= new LinkedList<>();
+
+
+        String sql = "SELECT * FROM `backup` WHERE userID = ? ORDER BY `backup`.`created_date` DESC ";
+        try {
+            PreparedStatement getBackups = connection.prepareStatement(sql);
+            getBackups.setInt(1, userID);
+
+
+
+            ResultSet res = getBackups.executeQuery();
+
+            while(res.next()){
+
+                List<BFile> files = getFilesList(res.getInt("ID"));
+
+                backups.add(new Backup(res.getInt("ID"),res.getString("name"),
+                        res.getString("description"),res.getDate("created_date"),files));
+
+            }
+
+
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+
+        return backups;
+    }
+
+
+    public static List<BFile> getFilesList(int backupID){
+
+        checkConnection();
+
+        List<BFile> bfiles= new LinkedList<>();
+
+        String sql = "SELECT * FROM `file` WHERE backupID = ?";
+        try {
+            PreparedStatement getBackups = connection.prepareStatement(sql);
+            getBackups.setInt(1, backupID);
+
+
+
+            ResultSet res = getBackups.executeQuery();
+
+            while(res.next()){
+                //add info about each file to list
+                bfiles.add(new BFile(res.getInt("ID"),res.getString("name"),
+                        res.getLong("size")));
+            }
+
+
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        return bfiles;
 
     }
 
