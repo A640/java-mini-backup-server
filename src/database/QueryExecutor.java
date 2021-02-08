@@ -179,6 +179,40 @@ public class QueryExecutor {
 
     }
 
+    public static void removeBackup(int backupID){
+
+        checkConnection();
+
+        String sql = "DELETE FROM `backup` WHERE `backup`.`ID` = ?";
+        try {
+            PreparedStatement remove = connection.prepareStatement(sql);
+            remove.setInt(1, backupID);
+
+            remove.execute();
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+    }
+
+    public static void removeFile(int fileID){
+
+        checkConnection();
+
+        String sql = "DELETE FROM `file` WHERE `file`.`ID` = ?";
+        try {
+            PreparedStatement remove = connection.prepareStatement(sql);
+            remove.setInt(1, fileID);
+
+            remove.execute();
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+    }
+
     public static List<Backup> getBackupsList(int userID){
 
         checkConnection();

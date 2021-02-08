@@ -181,7 +181,7 @@ public class ConnectedClient extends Thread {
     }
 
 
-    private void login(String login, String password){
+    public Boolean login(String login, String password){
 //        String login = null;
 //        String password = null;
 //        try{
@@ -211,6 +211,8 @@ public class ConnectedClient extends Thread {
 //                e.printStackTrace();
 //            }
 //        }
+
+        boolean success = false;
         int id = QueryExecutor.login(login,password);
 
         if(id != -1){
@@ -219,6 +221,7 @@ public class ConnectedClient extends Thread {
                 send.writeUTF("login");
                 send.writeBoolean(true);
                 send.flush();
+                success = true;
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -228,15 +231,19 @@ public class ConnectedClient extends Thread {
                 send.writeUTF("login");
                 send.writeBoolean(false);
                 send.flush();
+                success = false;
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
+
+        return success;
+
     }
 
 
-    private void upload(String name, Long size, int backupID){
+    public void upload(String name, Long size, int backupID){
         //upload files from client to server
 
         //get info about file
@@ -306,7 +313,7 @@ public class ConnectedClient extends Thread {
 
     }
 
-    private void createBackup(String name, String description, int clientID){
+    public int createBackup(String name, String description, int clientID){
 //        String name = null;
 //        String description = null;
 //        try{
@@ -324,6 +331,8 @@ public class ConnectedClient extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        return backupID;
     }
 
     private void getBackupList(){
