@@ -42,8 +42,8 @@ This project was created as final project for my Java classes. The goal was to c
 To use this project you will need `Java 9.0.1` or higher.
 
 1. Start MySQL database (e.g. with xampp) and create user `java` with password `java`
-2. Create database `java` and load database schema from `java.sql` file (can be found [here](https://github.com/A640/java-mini-backup-server/releases)
-3. Start server app (can be found [here](https://github.com/A640/java-mini-backup-server/releases)
-4. Open client app and register new account (can be found [here](https://github.com/A640/java-mini-backup-client/releases)
+2. Create database `java` and load database schema from `java.sql` file (can be found [here](https://github.com/A640/java-mini-backup-server/releases))
+3. Start server app (can be found [here](https://github.com/A640/java-mini-backup-server/releases))
+4. Open client app and register new account (can be found [here](https://github.com/A640/java-mini-backup-client/releases))
 5. You can create your first backup
 
